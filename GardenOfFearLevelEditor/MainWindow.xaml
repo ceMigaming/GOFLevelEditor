@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="GardenOfFearLevelEditor.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GardenOfFearLevelEditor"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    SizeChanged="Window_SizeChanged">
+
+    <StackPanel>
+        <MenuBar>
+            <MenuBarItem Title="File">
+                <MenuFlyoutItem Text="New" Icon="Document" Click="NewDocument_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="N"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Open" Click="Open_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="O"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                    <MenuFlyoutItem.Icon>
+                        <FontIcon Glyph="&#xe838;" />
+                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Save" Icon="Save" Click="Save_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="S"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Exit" Icon="Cancel" Click="Exit_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="E"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+
+            <MenuBarItem Title="Edit">
+                <MenuFlyoutItem Text="Copy" Icon="Copy" IsEnabled="False">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="C"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Paste" Icon="Paste" IsEnabled="False">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="V"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Undo" Icon="Undo" Click="Undo_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="Z"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+                <MenuFlyoutItem Text="Redo" Icon="Redo" Click="Redo_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="Y"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+
+            <MenuBarItem Title="Help">
+                <MenuFlyoutItem Text="About" Click="Help_Click">
+                    <MenuFlyoutItem.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="I"/>
+                    </MenuFlyoutItem.KeyboardAccelerators>
+                </MenuFlyoutItem>
+            </MenuBarItem>
+        </MenuBar>
+        <Grid x:Name="MainGrid">
+            <ScrollViewer x:Name="MyScrollViewer01" ZoomMode="Enabled" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Visible" ZoomSnapPointsType="Mandatory" Width="{Binding ElementName=MainGrid,Path=Width}" Height="{Binding ElementName=MainGrid,Path=Height}">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Canvas x:Name="MyCanvas01" Width="1024" Height="1024" PointerPressed="MyCanvas01_PointerPressed" PointerMoved="MyCanvas01_PointerMoved" PointerReleased="MyCanvas01_PointerReleased">
+                        <Border VerticalAlignment="Stretch" Width="{Binding ElementName=MyCanvas01,Path=Width}" Height="{Binding ElementName=MyCanvas01,Path=Height}">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="32,0" SpreadMethod="Repeat" MappingMode="Absolute" StartPoint="-32,0">
+                                    <LinearGradientBrush.RelativeTransform>
+                                        <CompositeTransform CenterY="0.5" CenterX="0.5" />
+                                    </LinearGradientBrush.RelativeTransform>
+                                    <GradientStop Color="Transparent" Offset="0.53"/>
+                                    <GradientStop Color="Transparent" Offset="0.48"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.49"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="{Binding ElementName=MyCanvas01,Path=Width}" Height="{Binding ElementName=MyCanvas01,Path=Height}" >
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0,32" SpreadMethod="Repeat" MappingMode="Absolute" StartPoint="0,-32">
+                                    <LinearGradientBrush.RelativeTransform>
+                                        <CompositeTransform CenterY="0.5" CenterX="0.5"/>
+                                    </LinearGradientBrush.RelativeTransform>
+                                    <GradientStop Color="Transparent" Offset="0.53"/>
+                                    <GradientStop Color="Transparent" Offset="0.48"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.49"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                    </Canvas>
+                    <Canvas x:Name="MyCanvas02" Width="1024" Height="1024" PointerPressed="MyCanvas02_PointerPressed" PointerMoved="MyCanvas02_PointerMoved" PointerReleased="MyCanvas02_PointerReleased">
+                        <Border VerticalAlignment="Stretch" Width="{Binding ElementName=MyCanvas01,Path=Width}" Height="{Binding ElementName=MyCanvas01,Path=Height}">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="32,0" SpreadMethod="Repeat" MappingMode="Absolute" StartPoint="-32,0">
+                                    <LinearGradientBrush.RelativeTransform>
+                                        <CompositeTransform CenterY="0.5" CenterX="0.5" />
+                                    </LinearGradientBrush.RelativeTransform>
+                                    <GradientStop Color="Transparent" Offset="0.42"/>
+                                    <GradientStop Color="Transparent" Offset="0.46"/>
+                                    <GradientStop Color="Transparent" Offset="0.54"/>
+                                    <GradientStop Color="Transparent" Offset="0.58"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.44"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.56"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="{Binding ElementName=MyCanvas01,Path=Width}" Height="{Binding ElementName=MyCanvas01,Path=Height}" >
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="0,32" SpreadMethod="Repeat" MappingMode="Absolute" StartPoint="0,-32">
+                                    <LinearGradientBrush.RelativeTransform>
+                                        <CompositeTransform CenterY="0.5" CenterX="0.5"/>
+                                    </LinearGradientBrush.RelativeTransform>
+                                    <GradientStop Color="Transparent" Offset="0.42"/>
+                                    <GradientStop Color="Transparent" Offset="0.46"/>
+                                    <GradientStop Color="Transparent" Offset="0.54"/>
+                                    <GradientStop Color="Transparent" Offset="0.58"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.44"/>
+                                    <GradientStop Color="#EAE5EF" Offset="0.56"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                    </Canvas>
+                </Grid>
+            </ScrollViewer>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0">
+                <DropDownButton x:Name="MyDropDownButton" AutomationProperties.Name="SelectedTile">
+                    <DropDownButton.Content>
+                        <StackPanel>
+                            <ImageIcon Width="64" Source="ms-appx:///Assets/Icons/Floor.png"/>
+                            <TextBlock Text="Floor" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </DropDownButton.Content>
+                    <DropDownButton.Flyout>
+                        <MenuFlyout x:Name="TileSelectorFlyout"/>
+                    </DropDownButton.Flyout>
+
+                </DropDownButton>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</Window>

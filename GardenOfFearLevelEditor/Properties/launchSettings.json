@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "GardenOfFearLevelEditor (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "GardenOfFearLevelEditor (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
