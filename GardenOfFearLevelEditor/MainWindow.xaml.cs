@@ -50,13 +50,7 @@ namespace GardenOfFearLevelEditor
         private readonly Dictionary<Map.TileType, BitmapImage> textures;
         private readonly Dictionary<Map.TileType, BitmapImage> icons;
 
-        private readonly Dictionary<Map.TileType, int> tileTypeLayers = new()
-        {
-            {Map.TileType.None, -1},
-            {Map.TileType.Floor, 0},
-            {Map.TileType.Wall, 1},
-            {Map.TileType.Door, 1}
-        };
+        private readonly List<Map.TileType> wallTiles = new() { Map.TileType.Wall, Map.TileType.Door };
 
         private Map map = new(16, 16, 1);
 
@@ -113,7 +107,7 @@ namespace GardenOfFearLevelEditor
                                 case Map.TileType.Wall:
                                 case Map.TileType.Door:
                                     MyCanvas02.Visibility = Visibility.Visible;
-                                    MyCanvas01.Opacity = 0.2;
+                                    MyCanvas01.Opacity = 0.33;
                                     break;
                             }
                         })
@@ -132,16 +126,17 @@ namespace GardenOfFearLevelEditor
                 {
                     isDrawing = true;
                     startPos = e.GetCurrentPoint(MyCanvas01).Position;
-                    AddObjectToGrid(startPos, currentTileType, true);
+                    AddFloorTileToGrid(startPos, currentTileType, true);
                 }
-                else if (properties.IsMiddleButtonPressed)
+                else
+                if (properties.IsMiddleButtonPressed)
                 {
                     startPanPos = e.GetCurrentPoint(MyCanvas01).Position;
                 }
                 else if (properties.IsRightButtonPressed)
                 {
                     Point p = e.GetCurrentPoint(MyCanvas01).Position;
-                    AddObjectToGrid(p, TILE_NONE, true);
+                    AddFloorTileToGrid(p, TILE_NONE, true);
                 }
             }
         }
@@ -156,7 +151,7 @@ namespace GardenOfFearLevelEditor
                 {
                     if (!isDrawing) return;
                     Point p = e.GetCurrentPoint(MyCanvas01).Position;
-                    AddObjectToGrid(p, currentTileType, false);
+                    AddFloorTileToGrid(p, currentTileType, false);
                 }
                 else if (properties.IsMiddleButtonPressed)
                 {
@@ -165,7 +160,7 @@ namespace GardenOfFearLevelEditor
                 else if (properties.IsRightButtonPressed)
                 {
                     Point p = e.GetCurrentPoint(MyCanvas01).Position;
-                    AddObjectToGrid(p, TILE_NONE, false);
+                    AddFloorTileToGrid(p, TILE_NONE, false);
                 }
             }
         }
@@ -176,7 +171,7 @@ namespace GardenOfFearLevelEditor
             startPos = new Point(0, 0);
         }
 
-        private void AddObjectToGrid(Point point, Map.TileType tileType, bool isFirstInStroke)
+        private void AddFloorTileToGrid(Point point, Map.TileType tileType, bool isFirstInStroke)
         {
             int x = ((int)point.X / TILE_SIZE) * TILE_SIZE;
             int y = ((int)point.Y / TILE_SIZE) * TILE_SIZE;
@@ -222,6 +217,74 @@ namespace GardenOfFearLevelEditor
             }
         }
 
+        private void AddWallTileToGrid(Point point, Map.TileType tileType, bool isFirstInStroke)
+        {
+            int x = ((int)point.X / TILE_SIZE) * TILE_SIZE;
+            int y = ((int)point.Y / TILE_SIZE) * TILE_SIZE;
+
+            Map.Direction direction = Map.Direction.North;
+
+            double cellCenterToX = point.X - x - TILE_SIZE / 2;
+            double cellCenterToY = point.Y - y - TILE_SIZE / 2;
+            if (Math.Abs(cellCenterToX) > Math.Abs(cellCenterToY))
+            {
+                if (cellCenterToX <= 0)
+                    direction = Map.Direction.West;
+                else
+                    direction = Map.Direction.East;
+            }
+            else
+            {
+                if (cellCenterToY <= 0)
+                    direction = Map.Direction.North;
+                else
+                    direction = Map.Direction.South;
+            }
+
+
+            Map.TileType lastTile = map.GetWallTile(x / TILE_SIZE, y / TILE_SIZE, 0, direction);
+
+            if (tileType != TILE_NONE)
+            {
+                if (lastTile == currentTileType)
+                {
+                    return;
+                }
+
+                Rectangle rect = new Rectangle
+                {
+                    Width = TILE_SIZE,
+                    Height = TILE_SIZE,
+                    Fill = imageBrushes[tileType],
+                    CenterPoint = new System.Numerics.Vector3(32, 32, 0),
+                    Rotation = direction.GetRotation()
+                };
+                MyCanvas02.Children.Add(rect);
+
+                Canvas.SetLeft(rect, x);
+                Canvas.SetTop(rect, y);
+            }
+            else
+            {
+                if (lastTile == TILE_NONE)
+                {
+                    return;
+                }
+
+                MyCanvas02.Children.Remove(MyCanvas02.Children.Where(x => x.GetType() == typeof(Rectangle)).Cast<Rectangle>().FirstOrDefault(r => Canvas.GetLeft(r) == x && Canvas.GetTop(r) == y && r.Rotation == direction.GetRotation()));
+            }
+            map.SetWallTile(x / TILE_SIZE, y / TILE_SIZE, 0, tileType, direction);
+            var p = new Point(x, y);
+            if (!isFirstInStroke && undoList.Count > 0)
+            {
+                undoList[undoList.Count - 1].Add(KeyValuePair.Create(p, lastTile));
+            }
+            else
+            {
+                undoList.Add(new List<KeyValuePair<Point, Map.TileType>> { KeyValuePair.Create(p, lastTile) });
+            }
+        }
+
         private async void NewDocument_Click(object sender, RoutedEventArgs e)
         {
             ContentDialog dialog = new()
@@ -241,6 +304,7 @@ namespace GardenOfFearLevelEditor
                 NewDocumentPage page = dialog.Content as NewDocumentPage;
                 map = new Map(page.GetWidth(), page.GetHeight(), 2);
                 MyCanvas01.Children.Clear();
+                MyCanvas02.Children.Clear();
                 RepaintCanvas(page.GetWidth(), page.GetHeight());
             }
         }
@@ -249,7 +313,7 @@ namespace GardenOfFearLevelEditor
         {
             MyCanvas01.Width = width * TILE_SIZE;
             MyCanvas01.Height = height * TILE_SIZE;
-            Border border1 = new Border
+            Border floorGridVertical = new Border
             {
                 VerticalAlignment = VerticalAlignment.Stretch,
                 Width = MyCanvas01.Width,
@@ -275,9 +339,9 @@ namespace GardenOfFearLevelEditor
                     }
                 }
             };
-            MyCanvas01.Children.Add(border1);
+            MyCanvas01.Children.Add(floorGridVertical);
 
-            Border border2 = new Border
+            Border floorGridHorizontal = new Border
             {
                 VerticalAlignment = VerticalAlignment.Stretch,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
@@ -304,7 +368,69 @@ namespace GardenOfFearLevelEditor
                     }
                 }
             };
-            MyCanvas01.Children.Add(border2);
+            MyCanvas01.Children.Add(floorGridHorizontal);
+
+            MyCanvas02.Width = width * TILE_SIZE;
+            MyCanvas02.Height = height * TILE_SIZE;
+
+            Border wallsGridVertical = new Border
+            {
+                VerticalAlignment = VerticalAlignment.Stretch,
+                Width = MyCanvas01.Width,
+                Height = MyCanvas01.Height,
+                Background = new LinearGradientBrush
+                {
+                    EndPoint = new Point(32, 0),
+                    SpreadMethod = GradientSpreadMethod.Repeat,
+                    MappingMode = BrushMappingMode.Absolute,
+                    StartPoint = new Point(-32, 0),
+                    RelativeTransform = new CompositeTransform
+                    {
+                        CenterY = 0.5,
+                        CenterX = 0.5
+                    },
+                    GradientStops =
+                    {
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.42 },
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.46 },
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.54 },
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.58 },
+                        new GradientStop { Color = Color.FromArgb(0xFF, 0xEA, 0xE5, 0xEF), Offset = 0.44 },
+                        new GradientStop { Color = Color.FromArgb(0xFF, 0xEA, 0xE5, 0xEF), Offset = 0.56 }
+                    }
+                }
+            };
+            MyCanvas02.Children.Add(wallsGridVertical);
+
+            Border wallsGridHorizontal = new Border
+            {
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Width = MyCanvas01.Width,
+                Height = MyCanvas01.Height,
+                Background = new LinearGradientBrush
+                {
+                    EndPoint = new Point(0, 32),
+                    SpreadMethod = GradientSpreadMethod.Repeat,
+                    MappingMode = BrushMappingMode.Absolute,
+                    StartPoint = new Point(0, -32),
+                    RelativeTransform = new CompositeTransform
+                    {
+                        CenterY = 0.5,
+                        CenterX = 0.5
+                    },
+                    GradientStops =
+                    {
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.42 },
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.46 },
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.54 },
+                        new GradientStop { Color = Colors.Transparent, Offset = 0.58 },
+                        new GradientStop { Color = Color.FromArgb(0xFF, 0xEA, 0xE5, 0xEF), Offset = 0.44 },
+                        new GradientStop { Color = Color.FromArgb(0xFF, 0xEA, 0xE5, 0xEF), Offset = 0.56 }
+                    }
+                }
+            };
+            MyCanvas02.Children.Add(wallsGridHorizontal);
         }
 
         private void Window_SizeChanged(object sender, WindowSizeChangedEventArgs args)
@@ -446,6 +572,7 @@ namespace GardenOfFearLevelEditor
             {
                 map = Map.ReadFromXmlFile(file.Path);
                 MyCanvas01.Children.Clear();
+                MyCanvas02.Children.Clear();
                 RepaintCanvas(map.Width, map.Height);
                 for (int x = 0; x < map.Width; x++)
                 {
@@ -467,6 +594,31 @@ namespace GardenOfFearLevelEditor
                         }
                     }
                 }
+                for (int x = 0; x < map.Width; x++)
+                {
+                    for (int y = 0; y < map.Height; y++)
+                    {
+                        foreach (Map.Direction direction in Enum.GetValues<Map.Direction>())
+                        {
+                            Map.TileType t = map.GetWallTile(x, y, 0, direction);
+                            if (t != Map.TileType.None)
+                            {
+                                Rectangle rect = new Rectangle
+                                {
+                                    Width = TILE_SIZE,
+                                    Height = TILE_SIZE,
+                                    Fill = imageBrushes[t],
+                                    CenterPoint = new System.Numerics.Vector3(32, 32, 0),
+                                    Rotation = direction.GetRotation()
+                                };
+                                MyCanvas02.Children.Add(rect);
+
+                                Canvas.SetLeft(rect, x * TILE_SIZE);
+                                Canvas.SetTop(rect, y * TILE_SIZE);
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -480,7 +632,7 @@ namespace GardenOfFearLevelEditor
                 PrimaryButtonText = "Yes",
                 CloseButtonText = "Cancel",
                 DefaultButton = ContentDialogButton.Primary,
-                Content = "Do you want to open Github Issues page?"
+                Content = "Do you want to open the wiki webpage?"
             };
 
             var result = await dialog.ShowAsync();
@@ -489,7 +641,7 @@ namespace GardenOfFearLevelEditor
                 // open github issues page in browser
                 System.Diagnostics.Process.Start(new ProcessStartInfo
                 {
-                    FileName = "https://github.com/ceMigaming",
+                    FileName = "https://github.com/ceMigaming/GOFLevelEditor/wiki",
                     UseShellExecute = true
                 });
             }
@@ -497,7 +649,28 @@ namespace GardenOfFearLevelEditor
 
         private void MyCanvas02_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
-
+            if (!wallTiles.Any(x => x != currentTileType)) return;
+            redoList.Clear();
+            if (e.Pointer.PointerDeviceType == Microsoft.UI.Input.PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(MyCanvas02).Properties;
+                if (properties.IsLeftButtonPressed)
+                {
+                    isDrawing = true;
+                    startPos = e.GetCurrentPoint(MyCanvas02).Position;
+                    AddWallTileToGrid(startPos, currentTileType, true);
+                }
+                else
+                if (properties.IsMiddleButtonPressed)
+                {
+                    startPanPos = e.GetCurrentPoint(MyCanvas02).Position;
+                }
+                else if (properties.IsRightButtonPressed)
+                {
+                    Point p = e.GetCurrentPoint(MyCanvas02).Position;
+                    AddWallTileToGrid(p, TILE_NONE, true);
+                }
+            }
         }
 
         private void MyCanvas02_PointerMoved(object sender, PointerRoutedEventArgs e)

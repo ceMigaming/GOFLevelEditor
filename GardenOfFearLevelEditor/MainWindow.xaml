@@ -80,9 +80,9 @@
                                     </LinearGradientBrush.RelativeTransform>
                                     <GradientStop Color="Transparent" Offset="0.53"/>
                                     <GradientStop Color="Transparent" Offset="0.48"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.49"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
+                                    <GradientStop Color="#454545" Offset="0.49"/>
+                                    <GradientStop Color="#454545" Offset="0.51"/>
+                                    <GradientStop Color="#454545" Offset="0.51"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
@@ -94,14 +94,14 @@
                                     </LinearGradientBrush.RelativeTransform>
                                     <GradientStop Color="Transparent" Offset="0.53"/>
                                     <GradientStop Color="Transparent" Offset="0.48"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.49"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.51"/>
+                                    <GradientStop Color="#454545" Offset="0.49"/>
+                                    <GradientStop Color="#454545" Offset="0.51"/>
+                                    <GradientStop Color="#454545" Offset="0.51"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
                     </Canvas>
-                    <Canvas x:Name="MyCanvas02" Width="1024" Height="1024" PointerPressed="MyCanvas02_PointerPressed" PointerMoved="MyCanvas02_PointerMoved" PointerReleased="MyCanvas02_PointerReleased">
+                    <Canvas x:Name="MyCanvas02" Width="1024" Height="1024" PointerPressed="MyCanvas02_PointerPressed" PointerMoved="MyCanvas02_PointerMoved" PointerReleased="MyCanvas02_PointerReleased" Visibility="Collapsed">
                         <Border VerticalAlignment="Stretch" Width="{Binding ElementName=MyCanvas01,Path=Width}" Height="{Binding ElementName=MyCanvas01,Path=Height}">
                             <Border.Background>
                                 <LinearGradientBrush EndPoint="32,0" SpreadMethod="Repeat" MappingMode="Absolute" StartPoint="-32,0">
@@ -112,8 +112,8 @@
                                     <GradientStop Color="Transparent" Offset="0.46"/>
                                     <GradientStop Color="Transparent" Offset="0.54"/>
                                     <GradientStop Color="Transparent" Offset="0.58"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.44"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.56"/>
+                                    <GradientStop Color="#454545" Offset="0.44"/>
+                                    <GradientStop Color="#454545" Offset="0.56"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
@@ -127,8 +127,8 @@
                                     <GradientStop Color="Transparent" Offset="0.46"/>
                                     <GradientStop Color="Transparent" Offset="0.54"/>
                                     <GradientStop Color="Transparent" Offset="0.58"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.44"/>
-                                    <GradientStop Color="#EAE5EF" Offset="0.56"/>
+                                    <GradientStop Color="#454545" Offset="0.44"/>
+                                    <GradientStop Color="#454545" Offset="0.56"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
